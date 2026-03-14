@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive JS Calendar</title>
+    <style>
+        /* CSS Variables for easy color changes */
+        :root {
+            --bg: #000000;
+            --container-bg: #ffffff;
+            --text: #000000;
+            --accent: #370b51;
+            --faded: #485a62;
+        }
+
+        body {
+            background-color: var(--bg);
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .calendar-container {
+            background: var(--container-bg);
+            width: 350px;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        /* Header Layout */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: var(--text);
+        }
+
+        .nav-btn {
+            background: #eee;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .nav-btn:hover { background: var(--accent); color: white; }
+
+        /* The Grid Logic */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr); /* 7 columns for 7 days */
+            gap: 8px;
+            text-align: center;
+        }
+
+        .day-label {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .date-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .date-cell:hover:not(.empty) {
+            background: #f0f0f0;
+        }
+
+        .today {
+            background: var(--accent) !important;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .empty { cursor: default; }
+    </style>
+</head>
+<body>
+
+<div class="calendar-container">
+    <div class="header">
+        <button class="nav-btn" onclick="moveMonth(-1)">&#10094;</button>
+        <h2 id="monthDisplay">Month Year</h2>
+        <button class="nav-btn" onclick="moveMonth(1)">&#10095;</button>
+    </div>
+
+    <div class="grid" id="calendarGrid">
+        </div>
+</div>
+
+<script>
+    // 1. Keep track of the currently viewed date
+    let currentViewDate = new Date();
+
+    function render() {
+        const grid = document.getElementById('calendarGrid');
+        const monthDisplay = document.getElementById('monthDisplay');
+        
+        // Clear previous render
+        grid.innerHTML = "";
+
+        const year = currentViewDate.getFullYear();
+        const month = currentViewDate.getMonth();
+
+        // 2. Display Month Name
+        const months = ["January", "February", "March", "April", "May", "June", 
+                        "July", "August", "September", "October", "November", "December"];
+        monthDisplay.innerText = `${months[month]} ${year}`;
+
+        // 3. Add Weekday Labels (Sun, Mon, etc.)
+        const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        weekDays.forEach(day => {
+            grid.innerHTML += `<div class="day-label">${day}</div>`;
+        });
+
+        // 4. Calculate Grid Logic
+        // Find which day of the week the 1st falls on (0-6)
+        const firstDayOfMonth = new Date(year, month, 1).getDay();
+        // Find the last day of the current month
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        // Get today's real-time date for highlighting
+        const today = new Date();
+
+        // 5. Create Empty Slots for start of month
+        for (let i = 0; i < firstDayOfMonth; i++) {
+            grid.innerHTML += `<div class="date-cell empty"></div>`;
+        }
+
+        // 6. Create Date Cells
+        for (let day = 1; day <= daysInMonth; day++) {
+            const isToday = (day === today.getDate() && 
+                             month === today.getMonth() && 
+                             year === today.getFullYear()) ? 'today' : '';
+            
+            grid.innerHTML += `<div class="date-cell ${isToday}">${day}</div>`;
+        }
+    }
+
+    // Function to handle Next/Prev buttons
+    function moveMonth(step) {
+        currentViewDate.setMonth(currentViewDate.getMonth() + step);
+        render();
+    }
+
+    // Initial run
+    render();
+</script>
+
+</body>
+</html>
